@@ -1,12 +1,15 @@
 CC = gcc
 CFLAGS = -Wall -pthread
 LIBS = -lssl -lcrypto  # Add OpenSSL libraries here
-MASTER_NODE_EXECUTABLE = master_node
-SERVER_EXECUTABLE = server
-CLIENT_EXECUTABLE = client
-SOURCES_MASTER_NODE = master_node.c
-SOURCES_SERVER = server.c database.c
-SOURCES_CLIENT = client.c
+SRC = src
+BUILD = build
+INCLUDE = include
+MASTER_NODE_EXECUTABLE = $(BUILD)/master_node
+SERVER_EXECUTABLE = $(BUILD)/server
+CLIENT_EXECUTABLE = $(BUILD)client
+SOURCES_MASTER_NODE = $(SRC)/master_node.c
+SOURCES_SERVER = $(SRC)/server.c $(SRC)/database.c
+SOURCES_CLIENT = $(SRC)/client.c
 OBJECTS_MASTER_NODE = $(SOURCES_MASTER_NODE:.c=.o)
 OBJECTS_SERVER = $(SOURCES_SERVER:.c=.o)
 OBJECTS_CLIENT = $(SOURCES_CLIENT:.c=.o)
