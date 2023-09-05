@@ -6,7 +6,7 @@ This folder contains the Python implementation of a datastore. The idea here is 
 
 ### 3rd September 2023
 
-A very basic version of the data store has been implemented. It is a single server that a client can connect to. It is completely in-memory and uses the Python dictionary to store data. 
+A very basic version of the data store has been implemented. It is a single server that a client can connect to. It is completely in-memory and uses the Python dictionary to store data.
 
 The operations implemented are:
 
