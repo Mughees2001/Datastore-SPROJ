@@ -4,7 +4,7 @@ import socket
 from sys import argv
 from threading import Thread
 from typing import Dict, Tuple
-from hashqueue import HashQueue
+from hashqueue import MultipleHashQueue
 import pprint
 
 
@@ -24,7 +24,7 @@ class KV:
 
 class Master:
     def __init__(self, host, port):
-        self.store = HashQueue()  #Contains put,get,hotKeys API.
+        self.store =  MultipleHashQueue(2)
         self.host = host
         self.port = int(port)
         self.threads = list()

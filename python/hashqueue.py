@@ -1,6 +1,52 @@
-from typing import Dict
+from typing import Dict,List
+import pprint
 
 
+
+class MultipleHashQueue:
+    def __init__(self,initQueueSize):
+        self.initQueueSize = initQueueSize
+        self.Queues = [HashQueue(self.initQueueSize)]
+
+    def fixQueue(self,queueNumber):
+        if (self.Queues[queueNumber].needNewQueue()):
+            (lastKey,lastValue) = (self.Queues[queueNumber].tail.key,self.Queues[queueNumber].tail.value)
+            try:
+                self.Queues[queueNumber+1].putQueue(lastKey,lastValue)
+            except:
+                self.Queues.append(HashQueue(self.initQueueSize * 1<<len(self.Queues))) # Initial Queue Size * 2()
+                self.Queues[queueNumber+1].putQueue(lastKey,lastValue) #Inserting the Last key value of previous queue into the head of new Queue.
+            self.Queues[queueNumber].deleteQueue(lastKey)
+        elif self.Queues[queueNumber].currentSize == 0:
+            self.Queues.pop()
+      
+    def put(self,key,value):
+        self.Queues[0].putQueue(key,value)
+        for i in range(len(self.Queues)):
+            if i!=0:
+                self.Queues[i].deleteQueue(key) #In case the key already existed in any other Queue
+            self.fixQueue(i)
+    
+    def delete(self,key):
+        for i in range(len(self.Queues)):
+            if self.Queues[i].deleteQueue(key) is True:
+                return True
+        return False
+        
+    def get(self,key):
+        for i in range(len(self.Queues)):
+            value = self.Queues[i].getQueue(key)
+            if value != "MISS":
+                return value
+        return "MISS"
+    
+    def currentState(self):
+        dictState = {}
+        for i in range(len(self.Queues)):
+            temp = "Queue"+str(i+1)
+            dictState[temp] = self.Queues[i].currentStateQueue()
+        return dictState
+    
 class Node:
     def __init__(self, key,value):
         self.key = key
@@ -9,19 +55,25 @@ class Node:
         self.prev = None
     
 class HashQueue:
-    def __init__(self):
+    def __init__(self,size):
         self.map: Dict[str, Node] = {}
         self.head = None
         self.tail = None
-        self.size = 0
-
-    def get(self,key):
+        self.size = size
+        self.currentSize = 0
+    
+    def needNewQueue(self):
+        if self.size < self.currentSize:
+            return True
+        return False
+        
+    def getQueue(self,key):
         if key in self.map:
             return self.map[key].value
         else:
             return "MISS"
         
-    def put(self,key,value):
+    def putQueue(self,key,value):
         if key in self.map:
             node = self.map[key]
             node.value = value
@@ -41,9 +93,9 @@ class HashQueue:
             node.next = self.head
             self.head.prev = node
             self.head = node
-        self.size += 1
+        self.currentSize += 1
     
-    def delete(self,key):
+    def deleteQueue(self,key):
         if key not in self.map:
             return False
         else:
@@ -56,17 +108,50 @@ class HashQueue:
                 self.tail = node.prev
             else:
                 node.next.prev = node.prev
-            self.size -= 1
+            self.currentSize -= 1
             del node
+            del self.map[key]
         return True
         
-    def currentState(self):
+    def currentStateQueue(self):
         node = self.head
         retList = []
         while node:
             retList.append((node.key,node.value))
             node = node.next
         state = {}
-        state['Size'] = self.size
-        state['Datastore'] = retList
+        state['Size Allowed'] = self.size
+        state['Current Size'] = self.currentSize
+        state['Items'] = retList
         return state
+
+
+# MHQ = MultipleHashQueue(2)
+# MHQ.put("A","100")
+# MHQ.put("B","200")
+# MHQ.put("C","300")
+# MHQ.put("D","300")
+# MHQ.put("E","300")
+# MHQ.put("F","300")
+# MHQ.put("G","300")
+# MHQ.put("H","400")
+# MHQ.put("I","300")
+# MHQ.put("J","300")
+# MHQ.put("K","300")
+# MHQ.put("L","400")
+
+# MHQ.put("M","300")
+# MHQ.put("N","300")
+# MHQ.put("O","400")
+
+# MHQ.put("P","300")
+# MHQ.put("Q","300")
+# MHQ.put("R","400")
+
+# # MHQ.put("M","300")
+# # print(MHQ.get("G"))
+# # print(MHQ.delete("B"))
+# # MHQ.delete("A")
+# # MHQ.put("BOO","300")
+# pprint.pprint(MHQ.currentState())
+ 
