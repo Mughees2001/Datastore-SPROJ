@@ -4,6 +4,10 @@ import socket
 from sys import argv
 from threading import Thread
 from typing import Dict, Tuple
+from hashqueue import HashQueue
+import pprint
+
+
 
 if len(argv) < 3:
     exit(Exception("Usage: python[3] master.py <host> <port>"))
@@ -20,7 +24,7 @@ class KV:
 
 class Master:
     def __init__(self, host, port):
-        self.store = dict()  # key: key, value:
+        self.store = HashQueue()  #Contains put,get,hotKeys API.
         self.host = host
         self.port = int(port)
         self.threads = list()
@@ -31,18 +35,14 @@ class Master:
 
     def put(self, kv: KV):
         if kv:
-            self.store[kv.key] = kv.value
+            self.store.put(kv.key,kv.value)
 
     def get(self, key):
-        return self.store.get(key, "MISS")
-
+        return self.store.get(key)
+      
     def delete(self, key):
-        if key in self.store:
-            del self.store[key]
-            return True
-        else:
-            return False
-
+        return self.store.delete(key)
+    
     def mbHint(self, client: socket.socket, host, port):
         """
         Summary:
@@ -113,8 +113,6 @@ class Master:
                 key, value = cmd[1].split(":")
                 self.put(KV(key, value))
                 print(f"PUT {key}:{value}")
-                self.currentState()
-
                 # we will also send a put request to the other master servers, if a client has any
                 try:
                     conn = self.masterSocketByClient[client]
@@ -122,9 +120,9 @@ class Master:
                     conn.send(message.encode())
                 except KeyError:
                     pass
-
             elif cmd[0] == "GET":
                 val = self.get(cmd[1])
+                print(f"GET {cmd[1]}:{val}")
                 client.send(val.encode())
             elif cmd[0] == "DELETE":
                 val = self.delete(cmd[1])
@@ -144,6 +142,8 @@ class Master:
             else:
                 self.disconnect(client, "Invalid command")
                 break
+            state = self.store.currentState()
+            pprint.pprint(state)
 
     def run(self):
         print(f"Server listening on {self.host}:{self.port}")
@@ -163,7 +163,7 @@ class Master:
             print("Server shut down successfully.")
 
     def currentState(self):
-        print(self.store)
+        return self.store.currentState()
 
 
 def main():

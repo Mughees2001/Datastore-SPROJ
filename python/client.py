@@ -165,7 +165,16 @@ class Client:
 
 def main():
     client = Client(host, port)
-
+    summary =  """
+    Legal Inputs:
+        - PUT : <key> <value>
+        - GET : <key>
+        - DELETE : <key>
+        - MB_HINT : <new_master_host> <new_master_port>
+        - DISCONNECT : <new_master_host> <new_master_port> (this function disconnects from the old master server, and connects to the new one.)
+        - EXIT
+        """
+    print(summary)
     client.run()
 
 
