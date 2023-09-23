@@ -14,12 +14,9 @@ class HashQueue:
         self.head = None
         self.tail = None
         self.size = 0
-        self.NumOfHotKeys = 2
 
     def get(self,key):
         if key in self.map:
-            self.delete(key)
-            self.insertAtHead(key)
             return self.map[key].value
         else:
             return "MISS"
@@ -63,15 +60,6 @@ class HashQueue:
             del node
         return True
         
-    def hotKeys(self,limit):
-        node = self.head
-        retList = []
-        while node and limit > 0 and limit <= self.size:
-            retList.append(node.key)
-            node = node.next
-            limit -= 1
-        return retList
-    
     def currentState(self):
         node = self.head
         retList = []
@@ -79,8 +67,6 @@ class HashQueue:
             retList.append((node.key,node.value))
             node = node.next
         state = {}
-        state['HotKeysPick'] = self.NumOfHotKeys
         state['Size'] = self.size
-        state['HotKeys'] = self.hotKeys(self.size//3)
         state['Datastore'] = retList
         return state
