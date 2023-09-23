@@ -124,34 +124,3 @@ class HashQueue:
         state['Current Size'] = self.currentSize
         state['Items'] = retList
         return state
-
-
-# MHQ = MultipleHashQueue(2)
-# MHQ.put("A","100")
-# MHQ.put("B","200")
-# MHQ.put("C","300")
-# MHQ.put("D","300")
-# MHQ.put("E","300")
-# MHQ.put("F","300")
-# MHQ.put("G","300")
-# MHQ.put("H","400")
-# MHQ.put("I","300")
-# MHQ.put("J","300")
-# MHQ.put("K","300")
-# MHQ.put("L","400")
-
-# MHQ.put("M","300")
-# MHQ.put("N","300")
-# MHQ.put("O","400")
-
-# MHQ.put("P","300")
-# MHQ.put("Q","300")
-# MHQ.put("R","400")
-
-# # MHQ.put("M","300")
-# # print(MHQ.get("G"))
-# # print(MHQ.delete("B"))
-# # MHQ.delete("A")
-# # MHQ.put("BOO","300")
-# pprint.pprint(MHQ.currentState())
- 
