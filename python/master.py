@@ -8,13 +8,6 @@ from hashqueue import MultipleHashQueue
 import pprint
 
 
-
-if len(argv) < 3:
-    exit(Exception("Usage: python[3] master.py <host> <port>"))
-
-host, port = argv[1], argv[2]
-
-
 class KV:
     def __init__(self, key, value):
         self.key = key
@@ -24,7 +17,7 @@ class KV:
 
 class Master:
     def __init__(self, host, port):
-        self.store =  MultipleHashQueue(2)
+        self.store = MultipleHashQueue(2)
         self.host = host
         self.port = int(port)
         self.threads = list()
@@ -35,14 +28,14 @@ class Master:
 
     def put(self, kv: KV):
         if kv:
-            self.store.put(kv.key,kv.value)
+            self.store.put(kv.key, kv.value)
 
     def get(self, key):
         return self.store.get(key)
-      
+
     def delete(self, key):
         return self.store.delete(key)
-    
+
     def mbHint(self, client: socket.socket, host, port):
         """
         Summary:
@@ -143,14 +136,17 @@ class Master:
                 self.disconnect(client, "Invalid command")
                 break
             state = self.store.currentState()
-            pprint.pprint(state)
+            # pprint.pprint(state)
 
     def run(self):
         print(f"Server listening on {self.host}:{self.port}")
         self.socket.listen(25)  # arbitrary number
         try:
             while True:
-                client, address = self.socket.accept()
+                try:
+                    client, address = self.socket.accept()
+                except:
+                    break
                 print(f"Connected to {address}")
                 t = Thread(target=self.clientHandler, args=(client,))
                 self.threads.append(t)
@@ -165,8 +161,17 @@ class Master:
     def currentState(self):
         return self.store.currentState()
 
+    def exit(self):
+        self.socket.close()
+        print("Server shut down successfully.")
+        exit()
+
 
 def main():
+    if len(argv) < 3:
+        exit(Exception("Usage: python[3] master.py <host> <port>"))
+
+    host, port = argv[1], argv[2]
     master = Master(host, port)
     master.run()
 

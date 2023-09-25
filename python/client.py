@@ -2,11 +2,6 @@ import socket
 from master import KV
 from sys import argv
 
-if len(argv) < 3:
-    exit(Exception("Usage: python[3] client.py <host> <port>"))
-
-host, port = argv[1], argv[2]
-
 
 class Client:
     def __init__(self, host, port):
@@ -164,8 +159,13 @@ class Client:
 
 
 def main():
+    if len(argv) < 3:
+        exit(Exception("Usage: python[3] client.py <host> <port>"))
+
+    host, port = argv[1], argv[2]
+
     client = Client(host, port)
-    summary =  """
+    summary = """
     Legal Inputs:
         - PUT : <key> <value>
         - GET : <key>
