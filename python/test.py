@@ -73,7 +73,7 @@ class Test:
         # sort kv_dict on value
         print(kv_dict)
         kv_dict = {k: v for k, v in sorted(kv_dict.items(), key=lambda item: item[1])}
-        # pprint(kv_dict)
+        pprint(kv_dict)
 
         self.master.exit()
 
