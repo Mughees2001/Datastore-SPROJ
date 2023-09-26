@@ -46,6 +46,16 @@ class MultipleHashQueue:
             temp = "Queue"+str(i+1)
             dictState[temp] = self.Queues[i].currentStateQueue()
         return dictState
+
+    def inOrderTraversal(self):
+        keyValues = []
+        for i in range(len(self.Queues)):
+                node = self.Queues[i].head
+                while node:
+                    keyValues.append((node.key,node.value))
+                    node = node.next
+        return keyValues
+                
     
 class Node:
     def __init__(self, key,value):
@@ -77,15 +87,14 @@ class HashQueue:
         if key in self.map:
             node = self.map[key]
             node.value = value
-            self.delete(key)
-            self.insertAtHead(key)
+            self.deleteQueue(key)
+            self.insertAtHead(key,value)
         else:
-            node = Node(key,value)
-            self.map[key] = node
-            self.insertAtHead(key)
+            self.insertAtHead(key,value)
     
-    def insertAtHead(self,key):
-        node = self.map[key]
+    def insertAtHead(self,key,value):
+        node = Node(key,value)
+        self.map[key] = node
         if self.head is None:
             self.head = node
             self.tail = node

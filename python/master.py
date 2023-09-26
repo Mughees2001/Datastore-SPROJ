@@ -36,6 +36,8 @@ class Master:
     def delete(self, key):
         return self.store.delete(key)
 
+    def inOrderTraversal(self):
+        return self.store.inOrderTraversal()
     def mbHint(self, client: socket.socket, host, port):
         """
         Summary:

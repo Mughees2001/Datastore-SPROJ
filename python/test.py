@@ -30,7 +30,7 @@ class Test:
     def putWrapper(self, key, value, num_iterations):
         for i in range(num_iterations):
             self.client.put(KV(key=key, value=value))
-            sleep(0.001)  # adding a short delay to make the threading undeterministic
+            sleep(0.01)  # adding a short delay to make the threading undeterministic
 
     def genValuePairs(self, num_of_keys):
         for i in range(num_of_keys):
@@ -38,10 +38,10 @@ class Test:
         print(f"Generated {num_of_keys} key-value pairs")
 
     def Start(self):
-        num_keys = 20
-
+        num_keys = 40 
         # create 1000 key-value pairs
         self.genValuePairs(num_keys)
+        print(self.kv[0].value)
 
         # keep track of update frequency
         kv_dict = {}
@@ -65,15 +65,15 @@ class Test:
         print(f"Time taken to put {num_keys} key-value pairs: {time() - start_time}")
 
         # use master to get all values in the queue in order
-        values_in_master = self.master.currentState()
-
+        values_in_master = self.master.inOrderTraversal()
         # Print all values in master
-        pprint(values_in_master)
+        print(values_in_master)
 
         # Print all values we inserted
         # sort kv_dict on value
+        print(kv_dict)
         kv_dict = {k: v for k, v in sorted(kv_dict.items(), key=lambda item: item[1])}
-        pprint(kv_dict)
+        # pprint(kv_dict)
 
         self.master.exit()
 
