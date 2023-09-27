@@ -38,6 +38,7 @@ class Master:
 
     def inOrderTraversal(self):
         return self.store.inOrderTraversal()
+
     def mbHint(self, client: socket.socket, host, port):
         """
         Summary:
@@ -94,7 +95,7 @@ class Master:
         Args:
             data (str): Data sent by the old master server
         """
-        print(data)
+        # print(data)
         data_in_dict = loads(data)
         self.store.update(
             data_in_dict
@@ -107,7 +108,7 @@ class Master:
             if cmd[0] == "PUT":
                 key, value = cmd[1].split(":")
                 self.put(KV(key, value))
-                print(f"PUT {key}:{value}")
+                # print(f"PUT {key}:{value}")
                 # we will also send a put request to the other master servers, if a client has any
                 try:
                     conn = self.masterSocketByClient[client]
@@ -117,7 +118,7 @@ class Master:
                     pass
             elif cmd[0] == "GET":
                 val = self.get(cmd[1])
-                print(f"GET {cmd[1]}:{val}")
+                # print(f"GET {cmd[1]}:{val}")
                 client.send(val.encode())
             elif cmd[0] == "DELETE":
                 val = self.delete(cmd[1])
