@@ -7,5 +7,5 @@ for i in $(seq 1010 10 5000)
 do
     echo "Running test case $i"
     # Run the test cases
-    $TESTCOMMAND $i
+    $TESTCOMMAND $i 2
 done

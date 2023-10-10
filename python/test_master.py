@@ -4,15 +4,17 @@ from typing import List
 from random import random
 from sys import argv
 from log import logger
+from pprint import pprint
 
 
 class MasterOnly:
-    def __init__(self, num_keys):
+    def __init__(self, num_keys, key_frequency=1):
         self.host = "localhost"
         self.port = 12000
         self.master = Master(self.host, self.port)
         self.num_keys = num_keys
         self.keys: List[KV] = []
+        self.key_frequency = key_frequency
 
     def generate_kv(self):
         for i in range(self.num_keys):
@@ -28,7 +30,7 @@ class MasterOnly:
         start_time = time()
 
         for i in range(1, self.num_keys + 1):
-            kv_dict[self.keys[i - 1].key] = i
+            kv_dict[self.keys[i - 1].key] = i * self.key_frequency
 
         dict_copy = [(k, v) for k, v in kv_dict.items()]
         while len(dict_copy) > 0:
@@ -55,18 +57,10 @@ class MasterOnly:
 
         differences = []
 
-        # print(str.format("{0:10} {1:10}", "Key", "Difference"))
-        # for i in range(len(n_dict)):
-        #     differences.append(abs(int(values_keys[i]) - int(n_dict[i][0])))
-        #     print(
-        #         str.format(
-        #             "{0:10} {1:10}",
-        #             values_keys[i],
-        #             abs(int(values_keys[i]) - int(n_dict[i][0])),
-        #         )
-        #     )
+        for i in range(len(n_dict)):
+            differences.append(abs(int(values_keys[i]) - int(n_dict[i][0])))
 
-        with open(f"./log/log_{self.num_keys}.txt", "w") as f:
+        with open(f"./log/{self.key_frequency}/log_{self.num_keys}.txt", "w") as f:
             f.write("Values in master\n")
             f.write(str(values_keys))
             f.write("\n")
@@ -82,8 +76,11 @@ class MasterOnly:
 
 
 if __name__ == "__main__":
-    if len(argv) > 1:
+    if len(argv) == 2:
         test = MasterOnly(int(argv[1]))
+    elif len(argv) == 3:
+        # logger.warning(f"Key freqency {argv[2]} provided")
+        test = MasterOnly(int(argv[1]), int(argv[2]))
     else:
         logger.warning("No argument provided, using default value of 100")
         test = MasterOnly(100)
