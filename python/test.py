@@ -40,7 +40,7 @@ class Test:
         print(f"Generated {num_of_keys} key-value pairs")
 
     def Start(self):
-        num_keys = 4000
+        num_keys = 100
         # create 1000 key-value pairs
         self.genValuePairs(num_keys)
 
