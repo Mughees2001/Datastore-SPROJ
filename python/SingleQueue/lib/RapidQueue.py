@@ -9,8 +9,8 @@ class Node:
     """
 
     def __init__(self, key: str, value: bytes):
-        self.key = key
-        self.value = value
+        self.key: str = key
+        self.value: bytes = value
         self.next: Node = None
         self.prev: Node = None
 
@@ -37,12 +37,17 @@ class RapidQueue:
         """
         try:
             k = self.store[key]  # fetching the node
-            k.prev.next = (
-                k.next
-            )  # setting the next node of the previous node to the next node of the current node
-            k.next.prev = (
-                k.prev
-            )  # setting the previous node of the next node to the previous node of the current node
+
+            if k.prev:
+                k.prev.next = (
+                    k.next
+                )  # setting the next node of the previous node to the next node of the current node
+
+            if k.next:
+                k.next.prev = (
+                    k.prev
+                )  # setting the previous node of the next node to the previous node of the current node
+
             del self.store[key]  # deleting the node from the store
         except KeyError as e:
             print(e)
@@ -73,6 +78,8 @@ class RapidQueue:
             self.tail.next = node
             self.tail = node
 
+        self.store[key] = node
+
         return True
 
     def get(self, key: str) -> Optional[bytes]:
@@ -85,7 +92,24 @@ class RapidQueue:
         except KeyError as e:
             print(e)
 
-        return "".encode()
+        return None
+
+    def startMigration(self) -> str:
+        # traverse through the queue and prepare a dump
+        # for each node we traverse, we remove it from the queue
+
+        dump: str = str()
+        traverse: Node = self.head
+        old: Node = None
+
+        while traverse:
+            dump += f"{traverse.key} {traverse.value.decode()};"
+            old = traverse
+            traverse = traverse.next
+            old.next = None
+            old.prev = None
+
+        return dump
 
     def __str__(self):
         """
