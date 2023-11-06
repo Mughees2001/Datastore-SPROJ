@@ -1,9 +1,10 @@
-from lib.log import logger
+from .lib.log import logger
 from typing import List, Dict, Tuple, Optional
-from lib.RapidQueue import RapidQueue
+from .lib.RapidQueue import RapidQueue
 from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 from uuid import uuid4
+
 
 
 class Server:
@@ -190,7 +191,7 @@ class Server:
         logger.debug(f"Shutting down server")
         self.socket.close()
         self.running = False
-        exit(0)
+        #exit(0)
 
 
 def main():

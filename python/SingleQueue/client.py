@@ -1,6 +1,7 @@
 from socket import socket, AF_INET, SOCK_STREAM
-from lib.log import logger
+from .lib.log import logger  # Changed to relative import
 from threading import Thread
+
 
 
 class Client:
