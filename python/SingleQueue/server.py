@@ -1,7 +1,7 @@
 from lib.log import logger
 from typing import List, Dict, Tuple, Optional
 from lib.RapidQueue import RapidQueue
-from socket import socket, AF_INET, SOCK_STREAM
+from socket import socket, AF_INET, SOCK_STREAM, IPPROTO_TCP, TCP_NODELAY
 from threading import Thread
 from uuid import uuid4
 
@@ -22,6 +22,7 @@ class Server:
         self.host: str = host
         self.port: int = int(port)
         self.socket = socket(AF_INET, SOCK_STREAM)
+        self.socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
         self.running: bool = True
 
         try:
