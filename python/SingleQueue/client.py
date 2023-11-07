@@ -1,5 +1,5 @@
-from socket import socket, AF_INET, SOCK_STREAM
 from .lib.log import logger  # Changed to relative import
+from socket import socket, AF_INET, SOCK_STREAM, IPPROTO_TCP, TCP_NODELAY
 from threading import Thread
 
 
@@ -9,6 +9,7 @@ class Client:
         self.host: str = host
         self.port: int = int(port)
         self.socket: socket = socket(AF_INET, SOCK_STREAM)
+        self.socket.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
         self.running: bool = True
         self.id: str = None
         self.connect()
