@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Optional
 
 
 class Node:
@@ -11,8 +11,8 @@ class Node:
     def __init__(self, key: str, value: bytes):
         self.key: str = key
         self.value: bytes = value
-        self.next: Node = None
-        self.prev: Node = None
+        self.next: Optional[Node] = None
+        self.prev: Optional[Node] = None
 
 
 class RapidQueue:
@@ -28,8 +28,9 @@ class RapidQueue:
 
     def __init__(self):
         self.store: Dict[str, Node] = dict()
-        self.head: Node = None
-        self.tail: Node = None
+        self.head: Optional[Node] = None
+        self.tail: Optional[Node] = None
+        self.length: int = 0
 
     def remove(self, key: str):
         """
@@ -49,6 +50,7 @@ class RapidQueue:
                 )  # setting the previous node of the next node to the previous node of the current node
 
             del self.store[key]  # deleting the node from the store
+            self.length -= 1  # decrementing the length of the queue
         except KeyError as e:
             print(e)
 
@@ -58,6 +60,8 @@ class RapidQueue:
         If it already exists, we will remove it from the queue
         Then we will insert a new node at the tail.
         """
+        # remove spaces from the right
+        # value = value.rstrip()
         node = Node(key, value)
 
         if key in self.store:
@@ -75,10 +79,12 @@ class RapidQueue:
             self.tail = node
         else:
             node.prev = self.tail
-            self.tail.next = node
+            if self.tail:
+                self.tail.next = node
             self.tail = node
 
         self.store[key] = node
+        self.length += 1
 
         return True
 
@@ -94,22 +100,48 @@ class RapidQueue:
 
         return None
 
-    def startMigration(self) -> str:
-        # traverse through the queue and prepare a dump
-        # for each node we traverse, we remove it from the queue
+    def getFirstN(self, n: int) -> str:
+        """
+        This function removes the first n nodes from the queue and
+        returns them.
 
-        dump: str = str()
-        traverse: Node = self.head
-        old: Node = None
+        Args:
+            n (int): Number of elements to be removed
 
-        while traverse:
-            dump += f"{traverse.key} {traverse.value.decode()};"
+        Returns:
+            str: A string containing the keys and values of the removed nodes
+        """
+        buff: str = str()
+        traverse: Optional[Node] = self.head
+        old: Node
+        while traverse is not None and n > 0:
+            buff += f"{traverse.key} {traverse.value.decode()};"
             old = traverse
             traverse = traverse.next
             old.next = None
             old.prev = None
+            n -= 1
+            self.length -= 1
+            if self.length == 0:
+                self.head = None
+                self.tail = None
+            elif self.length == 1:
+                self.head = traverse
+                self.tail = traverse
+            else:
+                self.head = traverse
+                if traverse:
+                    traverse.prev = None
 
-        return dump
+        return buff
+
+    def startMigration(self):
+        """
+        Retrieves the first half of the items in the queue and returns them as a string.
+        """
+
+        buffer: str = self.getFirstN(int(self.length / 2))
+        return buffer
 
     def __str__(self):
         """
@@ -120,7 +152,7 @@ class RapidQueue:
         string = ""
 
         while node is not None:
-            string += f"{node.key} -> "
+            string += f"{node.key}: {node.value} -> "
             node = node.next
 
         return string

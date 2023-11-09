@@ -28,14 +28,13 @@ class CustomFormatter(logging.Formatter):
 # create logger with 'spam_application'
 # create logger with 'SINGLE QUEUE'
 logger = logging.getLogger("SINGLE QUEUE")
-logger.setLevel(logging.CRITICAL)  # Set to CRITICAL to log critical messages only
+logger.setLevel(logging.DEBUG)  # Set to CRITICAL to log critical messages only
 
 # create console handler with a higher log level
 ch = logging.StreamHandler()
-ch.setLevel(logging.CRITICAL)  # Set to CRITICAL to log critical messages only
+ch.setLevel(logging.DEBUG)  # Set to CRITICAL to log critical messages only
 
 ch.setFormatter(CustomFormatter())
 
 # Add the handler to the logger
 logger.addHandler(ch)
-
