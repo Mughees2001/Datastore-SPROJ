@@ -1,4 +1,5 @@
-from typing import Dict, Optional
+import time
+from typing import Any, Dict, Optional
 
 
 class Node:
@@ -60,6 +61,7 @@ class RapidQueue:
         If it already exists, we will remove it from the queue
         Then we will insert a new node at the tail.
         """
+        start_time: Any = time.time()
         # remove spaces from the right
         # value = value.rstrip()
         node = Node(key, value)
@@ -86,6 +88,11 @@ class RapidQueue:
         self.store[key] = node
         self.length += 1
 
+        # add time in nano seconds to file
+        end_time: Any = time.time()
+        time_taken: float = end_time - start_time
+        with open("put_times.txt", "a") as f:
+            f.write(f"{time_taken}\n")
         return True
 
     def get(self, key: str) -> Optional[bytes]:

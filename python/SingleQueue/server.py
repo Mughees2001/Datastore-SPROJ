@@ -5,7 +5,7 @@ from socket import socket, AF_INET, SOCK_STREAM, IPPROTO_TCP, TCP_NODELAY
 from threading import Thread
 from uuid import uuid4
 from time import time, sleep
-from sys import argv
+from sys import argv, exit
 
 
 class Server:
@@ -33,7 +33,7 @@ class Server:
             # logger.debug("Server connected successfully")
         except OSError:
             logger.error(f"Port already in use")
-            exit(1)
+            exit()
 
         self.client_threads: Dict[
             socket, Thread
@@ -119,7 +119,8 @@ class Server:
         if cmd[0] == "PUT":
             key: str = cmd[1]
             value: bytes = " ".join(cmd[2:]).encode()
-            value = value[:-1]  # remove the last space
+            if value[-1] == " ":
+                value = value[:-1]  # remove the last space
             # logger.debug(f"Putting key {key} with value {value} in client {id}")
             self.put(id, key, value)
 
@@ -153,9 +154,9 @@ class Server:
                         value_p = " ".join(tokenized[1:])
 
                     logger.debug(
-                        f"Put {key_p} {value_p.encode()} in client {client_id}"
+                        f"Put {key_p} {value_p.encode()} in client {client_id}"  # type: ignore
                     )
-                    self.put(client_id, key_p, value_p.encode())
+                    self.put(client_id, key_p, value_p.encode())  # type: ignore
 
                 except:
                     # logger.debug(f"Error occured while parsing {pair}")
@@ -168,7 +169,12 @@ class Server:
             dump = self.store[id].getFirstN(self.store[id].length)
             logger.debug(f"Dumping {dump} for client {id}")
             dump_msg: str = f"SYNC_PUT {id} {dump}\n"
-            client.send(dump_msg.encode())
+            try:
+                client_migration_server: socket = self.other_masters[id]
+                client_migration_server.send(dump_msg.encode())
+            except KeyError:
+                pass
+            # client.send(dump_msg.encode())
 
             return
 
@@ -214,7 +220,7 @@ class Server:
                 val = " ".join(dump[1:])
                 sync_msg: str = f"SYNC_PUT {id} {key} {val}\n"
                 self.other_masters[id].send(sync_msg.encode())
-            sleep(0.001)  # sleep for 1 millisecond
+            sleep(2)  # sleep for 1 millisecond
 
     def run(self):
         """
