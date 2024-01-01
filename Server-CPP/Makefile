@@ -4,6 +4,7 @@ BUILD_DIR=build
 SRC_DIR=src
 INCLUDE_DIR=include
 TEST_DIR=test
+DEPS_DIR=deps
 
 TARGET_NAME=server
 TARGET=$(BUILD_DIR)/$(TARGET_NAME)
@@ -108,12 +109,13 @@ init: $(BUILD_DIR) $(SRC_DIR) $(INCLUDE_DIR)
 
 # Checks if src directory exists. If it doesn't, probably they haven't run `make init` yet.
 ifeq ($(SRC_DIR_EXISTS), 0)
+ARGS=
 run: 
 	$(MK_INIT_ERROR)
 else
 run: $(TARGET)
 	$(RUN)
-	$(Q) $(TARGET)
+	$(Q) $(TARGET) $(ARGS)
 endif
 
 all: $(TARGET) 
