@@ -22,6 +22,9 @@ class Server:
         self.host: str = host
         self.port: int = int(port)
         self.server: Optional[AbstractServer] = None
+        self.running: bool = True
+        # self.client_running: Dict[str, bool] = dict()
+
 
     async def start(self):
         """
@@ -108,26 +111,64 @@ class Server:
             reader, writer = await asyncio.open_connection(dest_host, dest_port)
             self.other_masters[client_id] = (reader, writer)
             # Perform operations with the connected server
-            # ...
 
-            id_message: str = await reader.readline().decode()
+            id_message = await reader.readline()
+            id_message = id_message.decode().strip()
+            logger.debug(f"Received ID message from new master: {id_message}")
+
+            # Send server ID
+            server_id = "server"
+            writer.write(server_id.encode())
+            await writer.drain()
+
+            # # Initialize the migration using the queue
+            # if client_id in self.store:
+            #     dump = self.store[client_id].startMigration()
+            #     logger.debug(f"Prepared dump {dump} for client {client_id}")
+
+            #     # Send the dump to the other master
+            #     dump_msg = f"SYNC_PUT {client_id} {dump}\n"
+            #     writer.write(dump_msg.encode())
+            #     await writer.drain()
+
+            #     # Handle synchronization (assuming you have an async version of syncHandler)
+            #     await self.async_syncHandler(client_id, reader, writer)
 
             writer.close()
             await writer.wait_closed()
+
         except ConnectionRefusedError:
             logger.error(f"Failed to connect to {dest_host}:{dest_port}")
 
+    async def async_syncHandler(self, client_id, reader, writer):
+        # Implement the asynchronous version of syncHandler
+        pass
+    
+    # async def mobility_hint(self, client_id: str, dest_host: str, dest_port: int):
+    #     try:
+    #         reader, writer = await asyncio.open_connection(dest_host, dest_port)
+    #         self.other_masters[client_id] = (reader, writer)
+    #         # Perform operations with the connected server
+    #         # ...
+
+    #         id_message: str = await reader.readline().decode()
+
+    #         writer.close()
+    #         await writer.wait_closed()
+    #     except ConnectionRefusedError:
+    #         logger.error(f"Failed to connect to {dest_host}:{dest_port}")
+
     def handle_command(self, client: asyncio.transports.Transport, cmd: List[str]):
-        cmd[0] = cmd[0].lower()
+        cmd[0] = cmd[0].upper()
         print(cmd)
-        if cmd[0] == "put":
+        if cmd[0] == "PUT":
             if len(cmd) == 3:
                 self.put(self.clients_id[client], cmd[1], cmd[2][:-1].encode())
                 client.write("OK\n".encode())
             else:
                 client.write("ERR\n".encode())
 
-        elif cmd[0] == "get":
+        elif cmd[0] == "GET":
             if len(cmd) == 2:
                 value = self.get(self.clients_id[client], cmd[1][:-1])
                 if value:
@@ -137,7 +178,7 @@ class Server:
             else:
                 client.write("ERR\n".encode())
 
-        elif cmd[0] == "delete":
+        elif cmd[0] == "DELETE":
             if len(cmd) == 2:
                 if self.delete(self.clients_id[client], cmd[1]):
                     client.write("OK\n".encode())
@@ -146,7 +187,7 @@ class Server:
             else:
                 client.write("ERR\n".encode())
 
-        elif cmd[0] == "mobility":
+        elif cmd[0] == "MB_HINT":
             if len(cmd) == 3:
                 asyncio.create_task(
                     self.mobility_hint(self.clients_id[client], cmd[1], int(cmd[2]))
@@ -155,8 +196,27 @@ class Server:
             else:
                 client.write("ERR\n".encode())
 
-        elif cmd[0] == "disconnect":
+        elif cmd[0] == "DISCONNECT":
+            client_id = self.clients_id.get(client)
+            if client_id is None:
+                logger.error("Client ID not found for the given transport.")
+                return
+
+            #self.client_running[client_id] = False  # Mark the client as not running
+            # # Prepare and send the dump
+            # dump = self.store[client_id].getFirstN(self.store[client_id].length)
+            # logger.debug(f"Dumping {dump} for client {client_id}")
+            # dump_msg = f"SYNC_PUT {client_id} {dump}\n"
+            # try:
+            #     client_migration_writer = self.other_masters[client_id][1]
+            #     asyncio.create_task(self.send_async_message(client_migration_writer, dump_msg))
+            # except KeyError:
+            #     logger.error(f"No migration server found for client {client_id}")
+
+            # Close the client connection
             client.close()
+
+            # Clean up client references
             del self.clients_id[client]
 
     async def handle_connection(self, reader: StreamReader, writer: StreamWriter):

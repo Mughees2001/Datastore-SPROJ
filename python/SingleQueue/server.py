@@ -173,7 +173,10 @@ class Server:
                 except:
                     # logger.debug(f"Error occured while parsing {pair}")
                     pass
-            logger.debug(f"State after processing {self.store[client_id]}")
+            try:
+                logger.debug(f"State after processing {self.store[client_id]}")
+            except:
+                print("In except")
 
         if cmd[0] == "DISCONNECT":
             self.client_running[id] = False  # to stop all other threads
