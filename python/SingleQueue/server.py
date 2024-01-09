@@ -6,6 +6,7 @@ from threading import Thread
 from uuid import uuid4
 from time import time, sleep
 from sys import argv, exit
+from lib.communications import Communication
 
 
 class Server:
@@ -45,18 +46,29 @@ class Server:
         )  # a dictionary to keep track of the next base station for a thread if any
 
     def generate_client_ID(self, client: socket):
-        """_summary_
+        """
 
         This function generates a unique client ID using UUID and sends it to the Client.
         The Client uses this ID when it wants to migrate to a new base station and sends it
         while connecting.
 
         Args:
-            client (socket): _description_
+            client (socket): The socket of the client that we want to generate an ID for
         """
         self.clients_id[client] = str(uuid4())
 
     def put(self, client_id: str, key: str, value: bytes):
+        """
+        Puts the given key-value pair into the store for the specified client.
+
+        Args:
+            client_id (str): The ID of the client.
+            key (str): The key to be stored.
+            value (bytes): The value to be associated with the key.
+
+        Returns:
+            None
+        """
         logger.critical(f"Putting {key} {value} in client {client_id}")
         try:
             self.store[client_id].put(key, value)
