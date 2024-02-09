@@ -98,7 +98,7 @@ class Client:
 
     def handleDisconnect(self, host: str, port: int):
         self.socket.send("DISCONNECT\n".encode())
-        # sleep(0.100) # to simulate a handover event on the client
+        sleep(0.100) # to simulate a handover event on the client
         self.host = host
         self.port = port
 

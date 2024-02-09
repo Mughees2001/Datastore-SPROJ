@@ -49,14 +49,46 @@ class Client:
             return None
 
     async def genMobilityHint(self, dest_host: str, dest_port: int) -> None:
-        message: str = "MOBILITY " + dest_host + " " + str(dest_port) + "\n"
+        message: str = "MB_HINT " + dest_host + " " + str(dest_port) + "\n"
         self.writer.write(message.encode())
         await self.writer.drain()
 
-    async def handleDisconnect(self, host: str, port: int):
-        message: str = "DISCONNECT " + host + " " + str(port) + "\n"
-        self.writer.write(message.encode())
+    async def handleDisconnect(self, new_host: str, new_port: int):
+        # Send the disconnect message
+        disconnect_message = "DISCONNECT\n"
+        self.writer.write(disconnect_message.encode())
         await self.writer.drain()
+
+        # Sleep to simulate a handover event (replacing the blocking sleep with asyncio.sleep)
+        await asyncio.sleep(0.100)
+
+        # Update host and port
+        self.host = new_host
+        self.port = new_port
+
+        # Reconnect with the new host and port
+        self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
+        # Receive the ID message
+        # id_message = await self.reader.read(4096)
+        # id_message = id_message.decode()
+        # print("Id_message",id_message)
+
+        # # Send the client ID or -1 if not set
+        # if self.id:
+        #     msg = self.id
+        # else:
+        #     msg = "-1"
+
+        # self.writer.write(msg.encode())
+        # await self.writer.drain()
+        # print("HERERER")
+
+        # # If the client ID was not set, receive the new ID from the server
+        # if not self.id:
+        #     id_response = await self.reader.read(4096)
+        #     id_response = id_response.decode()
+        #     self.id = id_response.split(":")[-1]
+
 
     async def run(self):
         await self.connect()
