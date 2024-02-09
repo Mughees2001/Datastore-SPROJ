@@ -16,10 +16,10 @@ Node::Node(std::string *d, std::string key)
     this->key = key;
 }
 
-Node::~Node()
-{
-    free(this->d);
-}
+// Node::~Node()
+// {
+//     free(this->d);
+// }
 
 RapidQueue::RapidQueue()
 {
@@ -79,7 +79,7 @@ void RapidQueue::remove(std::string key)
     this->map->erase(key);
 
     // delete the node
-    delete node;
+    // node->~Node();
 
     // decrement the size
     this->size--;
