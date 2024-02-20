@@ -68,6 +68,15 @@ class ParseReply {
         std::string host;
         int port;
         
+        ParseReply(){
+            this->length = 0;
+            this->op = GET;
+            this->key = "";
+            this->value = NULL;
+            this->host = "";
+            this->port = 0;
+        }
+
         // Constructor for PUT
         ParseReply(int length, Op op, std::string key, std::string value) {
             this->length = length;
@@ -90,69 +99,75 @@ class ParseReply {
             this->host = host;
             this->port = port;
         }
+
+        friend std::ostream &operator<<(std::ostream &os, const ParseReply &pr) {
+
+            if (pr.op == PUT) {
+                os << "PUT " << pr.key << " " << *pr.value;
+            } else if (pr.op == GET) {
+                os << "GET " << pr.key;
+            } else if (pr.op == MB_HINT) {
+                os << "MB_HINT " << pr.host << " " << pr.port;
+            } else if (pr.op == DISCONNECT) {
+                os << "DISCONNECT " << pr.host << " " << pr.port;
+            }
+
+            return os;
+        }
 };
 
-std::vector<std::string> *split(std::string s, char delim){
-    
-    std::vector<std::string> *result = new std::vector<std::string>;
+ParseReply *generate_Op(const std::string &s)
+{
+    std::vector<std::string> *result = new std::vector<std::string>[4]; // max allocation to speed up the process
     std::stringstream ss(s);
     std::string item;
 
-    std::cout << "String to parse " << s << std::endl;
-    
-    int count = 0;
-    while (std::getline(ss, item, ' ')){
-        result->push_back(item);
-        std::cout << ++count << std::endl;
-    }
-    return result;
-}
+    std::getline(ss, item, ' ');
 
-ParseReply *generate_Op(const std::string &s){
-    std::vector<std::string> *result = split(s, ' ');
-
-    std::string res = result->at(0);
-    if (res == (std::string)"PUT"){
-        return new ParseReply(3, PUT, result->at(1), result->at(2));
-    } else if (res == (std::string)"MB_HINT"){
-        return new ParseReply(4, MB_HINT, result->at(1), std::stoi(result->at(2)));
-    } else if (res == (std::string)"DISCONNECT"){
-        return new ParseReply(4, DISCONNECT, result->at(1), std::stoi(result->at(2)));
-    } 
-    else {
-        return new ParseReply(2, GET, result->at(1));
-    }
-}
-
-ParseReply *parse_command(std::string command)
-{
-    std::string op = command.substr(0, 3);
-
-    if (op == "PUT")
+    ParseReply *reply = new ParseReply;
+    if (item == std::string("PUT"))
     {
-        // find second space
-        int space = command.find(" ", 4);
-
-        // key is from 4 to space - 4
-        std::string key = command.substr(4, space - 4);
-
-        // value is from space + 1 to end - 1
-        std::string value = command.substr(space + 1, command.length() - space - 1);
-
-        return new ParseReply(3, PUT, key, value);
+        std::getline(ss, item, ' ');
+        reply->key = item;
+        std::getline(ss, item, '\n');
+        reply->value = new std::string(item);
+        reply->op = PUT;
+        reply->length = 3;
+        return reply;
+    }
+    else if (item == std::string("GET"))
+    {
+        std::getline(ss, item, '\n');
+        reply->key = item;
+        reply->op = GET;
+        reply->length = 2;
+        return reply;
+    }
+    else if (item == std::string("MB_HINT"))
+    {
+        std::getline(ss, item, ' ');
+        reply->host = item;
+        std::getline(ss, item, '\n');
+        reply->port = std::stoi(item);
+        reply->op = MB_HINT;
+        reply->length = 4;
+        return reply;
+    }
+    else if (item == std::string("DISCONNECT"))
+    {
+        std::getline(ss, item, ' ');
+        reply->host = item;
+        std::getline(ss, item, '\n');
+        reply->port = std::stoi(item);
+        reply->op = DISCONNECT;
+        reply->length = 4;
+        return reply;
     }
     else
     {
-        // find first space
-        int space = command.find(" ");
-
-        // key is from 4 to space - 4
-        std::string key = command.substr(4, space - 4);
-
-        return new ParseReply(2, GET, key);
+        return reply;
     }
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -219,11 +234,9 @@ int main(int argc, char *argv[])
 
     std::string input;
     std::getline(std::cin, input);
-    std::vector<std::string> *tokens = split(input, ' ');
+    ParseReply *reply = generate_Op(input);
 
-    for(int i = 0; i < tokens->size(); i++){
-        std::cout << tokens->at(i) << std::endl;
-    }
+    std::cout << *reply << std::endl;
 
     return 0;
 }

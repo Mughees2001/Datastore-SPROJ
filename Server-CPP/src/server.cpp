@@ -176,7 +176,6 @@ ParseReply *generate_Op(const std::string &s)
     std::stringstream ss(s);
     std::string item;
 
-    // first token
     std::getline(ss, item, ' ');
 
     ParseReply *reply = new ParseReply;
@@ -187,6 +186,7 @@ ParseReply *generate_Op(const std::string &s)
         std::getline(ss, item, '\n');
         reply->value = new std::string(item);
         reply->op = PUT;
+        reply->length = 3;
         return reply;
     }
     else if (item == std::string("GET"))
@@ -194,6 +194,7 @@ ParseReply *generate_Op(const std::string &s)
         std::getline(ss, item, '\n');
         reply->key = item;
         reply->op = GET;
+        reply->length = 2;
         return reply;
     }
     else if (item == std::string("MB_HINT"))
@@ -203,6 +204,7 @@ ParseReply *generate_Op(const std::string &s)
         std::getline(ss, item, '\n');
         reply->port = std::stoi(item);
         reply->op = MB_HINT;
+        reply->length = 4;
         return reply;
     }
     else if (item == std::string("DISCONNECT"))
@@ -212,6 +214,7 @@ ParseReply *generate_Op(const std::string &s)
         std::getline(ss, item, '\n');
         reply->port = std::stoi(item);
         reply->op = DISCONNECT;
+        reply->length = 4;
         return reply;
     }
     else

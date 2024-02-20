@@ -59,6 +59,21 @@ class ParseReply {
             this->host = host;
             this->port = port;
         }
+
+        friend std::ostream &operator<<(std::ostream &os, const ParseReply &pr) {
+
+            if (pr.op == PUT) {
+                os << "PUT " << pr.key << " " << *pr.value;
+            } else if (pr.op == GET) {
+                os << "GET " << pr.key;
+            } else if (pr.op == MB_HINT) {
+                os << "MB_HINT " << pr.host << " " << pr.port;
+            } else if (pr.op == DISCONNECT) {
+                os << "DISCONNECT " << pr.host << " " << pr.port;
+            }
+
+            return os;
+        }
 };
 
 // class Server
