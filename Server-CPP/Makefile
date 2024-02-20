@@ -25,7 +25,7 @@ CP=cp
 UPPERCASE_CMD = tr '[:lower:][\-/]' '[:upper:][__]'
 
 # Flags for compiler and other programs
-CFLAGS=-Wall -Wextra -std=c++17
+CFLAGS=-Wall -Wextra -std=c++20
 VALG_FLAGS = --leak-check=full --track-origins=yes
 DEBUG_FLAGS = -g -DDEBUG
 RELEASE_FLAGS = -O3 -march=native
@@ -91,11 +91,11 @@ SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRCS))
 
 # for client compilation, we need to remove the server main file.
-CLIENT_SRCS := $(filter-out $(SRC_DIR)/server.cpp, $(SRCS))
+CLIENT_SRCS := $(filter-out $(SRC_DIR)/server.cpp $(SRC_DIR)/dev.cpp, $(SRCS))
 CLIENT_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(CLIENT_SRCS))
 
 # for server compilation, we need to remove the client main file.
-SERVER_SRCS := $(filter-out $(SRC_DIR)/client.cpp, $(SRCS))
+SERVER_SRCS := $(filter-out $(SRC_DIR)/client.cpp $(SRC_DIR)/dev.cpp, $(SRCS))
 SERVER_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SERVER_SRCS))
 
 # for dev compilation, we need to remove the client and server main files.
@@ -134,6 +134,9 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 $(BUILD_DIR) $(SRC_DIR) $(INCLUDE_DIR):
 	$(TRACE_MKDIR)
 	$(Q) $(MKDIR) $@
+
+server: $(TARGET)
+	$(BUILD_SUCCESS)
 
 # Initializes the project directories, and creates a main.c file in the src directory.
 init: $(BUILD_DIR) $(SRC_DIR) $(INCLUDE_DIR)

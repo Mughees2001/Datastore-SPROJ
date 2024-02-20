@@ -10,6 +10,7 @@
 
 #include "db.h"
 
+#include <sstream>
 #include <iostream>
 #include <string>
 #include <time.h>
@@ -21,6 +22,8 @@ struct Tuple
     std::string *value;
 };
 
+
+/*
 void run_test(std::map<std::string, Tuple> *map, RapidQueue *db)
 {
     while (!map->empty())
@@ -34,16 +37,122 @@ void run_test(std::map<std::string, Tuple> *map, RapidQueue *db)
         std::advance(it, index);
 
         it->second.frequency--;
-        std::cout << "Inserting " << it->first << " with remaining frequency " << it->second.frequency << std::endl;
+        // std::cout << "Inserting " << it->first << " with remaining frequency " << it->second.frequency << std::endl;
         db->put(it->second.value, it->first);
 
         if (it->second.frequency == 0)
         {
-            std::cout << "Erasing " << it->first << std::endl;
+            // std::cout << "Erasing " << it->first << std::endl;
             map->erase(it);
         }
     }
 }
+*/
+
+
+enum Op {
+    PUT,
+    GET,
+    MB_HINT,
+    DISCONNECT
+};
+
+
+
+class ParseReply {
+    public:
+        int length;
+        Op op;
+        std::string key;
+        std::string *value;
+        std::string host;
+        int port;
+        
+        // Constructor for PUT
+        ParseReply(int length, Op op, std::string key, std::string value) {
+            this->length = length;
+            this->op = op;
+            this->key = key;
+            this->value = new std::string (value);
+        }
+
+        // Constructor for GET and DEL
+        ParseReply(int length, Op op, std::string key) {
+            this->length = length;
+            this->op = op;
+            this->key = key;
+        }
+
+        // Constructor for MB_HINT and DISCONNECT
+        ParseReply(int length, Op op, std::string host, int port) {
+            this->length = length;
+            this->op = op;
+            this->host = host;
+            this->port = port;
+        }
+};
+
+std::vector<std::string> *split(std::string s, char delim){
+    
+    std::vector<std::string> *result = new std::vector<std::string>;
+    std::stringstream ss(s);
+    std::string item;
+
+    std::cout << "String to parse " << s << std::endl;
+    
+    int count = 0;
+    while (std::getline(ss, item, ' ')){
+        result->push_back(item);
+        std::cout << ++count << std::endl;
+    }
+    return result;
+}
+
+ParseReply *generate_Op(const std::string &s){
+    std::vector<std::string> *result = split(s, ' ');
+
+    std::string res = result->at(0);
+    if (res == (std::string)"PUT"){
+        return new ParseReply(3, PUT, result->at(1), result->at(2));
+    } else if (res == (std::string)"MB_HINT"){
+        return new ParseReply(4, MB_HINT, result->at(1), std::stoi(result->at(2)));
+    } else if (res == (std::string)"DISCONNECT"){
+        return new ParseReply(4, DISCONNECT, result->at(1), std::stoi(result->at(2)));
+    } 
+    else {
+        return new ParseReply(2, GET, result->at(1));
+    }
+}
+
+ParseReply *parse_command(std::string command)
+{
+    std::string op = command.substr(0, 3);
+
+    if (op == "PUT")
+    {
+        // find second space
+        int space = command.find(" ", 4);
+
+        // key is from 4 to space - 4
+        std::string key = command.substr(4, space - 4);
+
+        // value is from space + 1 to end - 1
+        std::string value = command.substr(space + 1, command.length() - space - 1);
+
+        return new ParseReply(3, PUT, key, value);
+    }
+    else
+    {
+        // find first space
+        int space = command.find(" ");
+
+        // key is from 4 to space - 4
+        std::string key = command.substr(4, space - 4);
+
+        return new ParseReply(2, GET, key);
+    }
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -87,6 +196,7 @@ int main(int argc, char *argv[])
         }
     }
 
+    /*
     RapidQueue *db = new RapidQueue();
     std::map<std::string, Tuple> *map = new std::map<std::string, Tuple>();
 
@@ -105,6 +215,15 @@ int main(int argc, char *argv[])
     }
 
     run_test(map, db);
+    */
+
+    std::string input;
+    std::getline(std::cin, input);
+    std::vector<std::string> *tokens = split(input, ' ');
+
+    for(int i = 0; i < tokens->size(); i++){
+        std::cout << tokens->at(i) << std::endl;
+    }
 
     return 0;
 }
