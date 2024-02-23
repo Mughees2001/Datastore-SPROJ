@@ -5,6 +5,8 @@
 #include <iostream>
 #include <uv.h>
 #include <map>
+#include <vector>
+#include <cstring>
 
 #include "db.h"
 

@@ -1,6 +1,7 @@
 #include "server.h"
 #include "log.h"
 
+
 ParseReply *generate_Op(const std::string &s)
 {
     std::vector<std::string> *result = new std::vector<std::string>[4]; // max allocation to speed up the process
@@ -143,15 +144,15 @@ void on_read(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf)
             }
             else if (reply->op == MB_HINT){
                 // add a function to the event loop
-                uv_work_t *worker = new uv_work_t;
-                worker->data = new std::pair<std::string, int>(reply->host, reply->port);
-                uv_queue_work(loop, worker, mb_hint, mb_hint_done);
+                // uv_work_t *worker = new uv_work_t;
+                // worker->data = new std::pair<std::string, int>(reply->host, reply->port);
+                // uv_queue_work(loop, worker, mb_hint, mb_hint_done);
 
-                char *message = new char[4];
-                strcpy(message, "OK\n");
-                uv_buf_t wrbuf = uv_buf_init(message, strlen(message));
-                uv_write_t *req = (uv_write_t *)malloc(sizeof(uv_write_t));
-                uv_write(req, client, &wrbuf, 1, NULL);
+                // char *message = new char[4];
+                // strcpy(message, "OK\n");
+                // uv_buf_t wrbuf = uv_buf_init(message, strlen(message));
+                // uv_write_t *req = (uv_write_t *)malloc(sizeof(uv_write_t));
+                // uv_write(req, client, &wrbuf, 1, NULL);
 
 
 
