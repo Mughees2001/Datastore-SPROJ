@@ -63,6 +63,7 @@ class ParseReply {
     public:
         int length;
         Op op;
+        std::string id;
         std::string key;
         std::string *value;
         std::string host;
@@ -71,6 +72,7 @@ class ParseReply {
         ParseReply(){
             this->length = 0;
             this->op = GET;
+            this->id = "";
             this->key = "";
             this->value = NULL;
             this->host = "";
@@ -78,24 +80,27 @@ class ParseReply {
         }
 
         // Constructor for PUT
-        ParseReply(int length, Op op, std::string key, std::string value) {
+        ParseReply(int length, Op op, std::string id, std::string key, std::string value) {
             this->length = length;
             this->op = op;
+            this->id = id;
             this->key = key;
             this->value = new std::string (value);
         }
 
         // Constructor for GET and DEL
-        ParseReply(int length, Op op, std::string key) {
+        ParseReply(int length, Op op, std::string id, std::string key) {
             this->length = length;
             this->op = op;
+            this->id = id;
             this->key = key;
         }
 
         // Constructor for MB_HINT and DISCONNECT
-        ParseReply(int length, Op op, std::string host, int port) {
+        ParseReply(int length, Op op, std::string id, std::string host, int port) {
             this->length = length;
             this->op = op;
+            this->id = id;
             this->host = host;
             this->port = port;
         }
@@ -103,13 +108,13 @@ class ParseReply {
         friend std::ostream &operator<<(std::ostream &os, const ParseReply &pr) {
 
             if (pr.op == PUT) {
-                os << "PUT " << pr.key << " " << *pr.value;
+                os << "PUT " << pr.key << " " << *pr.value << " " << pr.id;
             } else if (pr.op == GET) {
-                os << "GET " << pr.key;
+                os << "GET " << pr.key << " " << pr.id;
             } else if (pr.op == MB_HINT) {
-                os << "MB_HINT " << pr.host << " " << pr.port;
+                os << "MB_HINT " << pr.host << " " << pr.port << " " << pr.id;
             } else if (pr.op == DISCONNECT) {
-                os << "DISCONNECT " << pr.host << " " << pr.port;
+                os << "DISCONNECT " << pr.host << " " << pr.port << " " << pr.id;
             }
 
             return os;
@@ -125,6 +130,9 @@ ParseReply *generate_Op(const std::string &s)
     std::getline(ss, item, ' ');
 
     ParseReply *reply = new ParseReply;
+
+    // convert to uppercase
+    std::transform(item.begin(), item.end(), item.begin(), ::toupper);
     if (item == std::string("PUT"))
     {
         std::getline(ss, item, ' ');

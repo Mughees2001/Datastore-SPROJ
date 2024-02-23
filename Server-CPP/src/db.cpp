@@ -122,6 +122,13 @@ bool RapidQueue::put(std::string *d, std::string key)
 
 std::string *RapidQueue::get(std::string key)
 {
+    bool exists = this->map->contains(key);
+
+    if (!exists)
+    {
+        return NULL;
+    }
+
     // get the node from the map
     Node *node = this->map->at(key);
 
