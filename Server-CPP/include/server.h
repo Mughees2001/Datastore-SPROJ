@@ -83,30 +83,7 @@ class ParseReply {
         }
 };
 
-// class Server
-// {
-//     std::string host;
-//     int port;
-//     uv_loop_t *loop;
-//     uv_tcp_t server;
-//     std::map<std::string, RapidQueue *> *clients;
-//
-//     ParseReply *parse_command(std::string command);
-//
-// public:
-//     Server(std::string host, int port);
-//     ~Server();
-//     void run();
-//     static void on_new_connection(uv_stream_t *server, int status);
-//     static void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf);
-//     void on_read(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf);
-//     void on_write(uv_write_t *req, int status);
-//     void on_close(uv_handle_t *handle);
-//     void handle_command(std::string command, uv_stream_t *client);
-//     bool put(std::string key, std::string *value, uv_stream_t *client);
-//     std::string *get(std::string key, uv_stream_t *client);
-//     bool del(std::string key, uv_stream_t *client);
-// };
+
 
 static uv_loop_t *loop;
 static uv_tcp_t server;
