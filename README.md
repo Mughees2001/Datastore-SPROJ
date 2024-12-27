@@ -1,7 +1,7 @@
 # A Novel Low Latency Datastore for the Edge
 
 
-[Click here to Open Paper](docs/paper.pdf)
+[Click here to Open Paper](Low%20Latency%20Datastore.pdf)
 
 
 ## Abstract
@@ -48,11 +48,3 @@ We develop a new data structure, a hashed queue, and use it to build a datastore
 - C
 
 ----
-
-## References
-Please see the `reference.bib` file for the full list of references cited in the project.
-
----
-
-## Appendix
-For details about the `RapidQueue Algorithm`, see the appendix provided in the `sections/appendixA` file.
